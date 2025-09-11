@@ -1,15 +1,15 @@
 workflows:
   ios-spooding-express:
-    name: iOS Build & Publish - Spooding Express
+    name: iOS Build - SpooDing Express
     max_build_duration: 90
     instance_type: mac_mini_m2
 
     environment:
       flutter: stable
       vars:
-        APPLE_ID: "wseize@gmail.com"                 
-        APP_SPECIFIC_PASSWORD: "ssaa-qfwm-yupg-matu" 
-        IOS_TEAM_ID: "9A1BC23D45"                    
+        APPLE_ID: "wseize@gmail.com"                 # Apple ID متاعك
+        APP_SPECIFIC_PASSWORD: "ssaa-qfwm-yupg-matu" # App-specific password
+        IOS_TEAM_ID: "9A1BC23D45"                    # Team ID متاعك (من Membership page)
       ios_signing:
         distribution_type: app_store
         bundle_identifier: "com.spooding.express"
@@ -24,10 +24,3 @@ workflows:
       - name: Build iOS App (Release)
         script: |
           flutter build ios --release --no-codesign
-
-    publishing:
-      app_store_connect:
-        apple_id: $APPLE_ID
-        password: $APP_SPECIFIC_PASSWORD
-        submit_to_testflight: true
-        submit_to_app_store: true
