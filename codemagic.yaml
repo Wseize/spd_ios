@@ -1,35 +1,22 @@
 workflows:
-  ios-workflow:
-    name: iOS build & publish
-    max_build_duration: 60
-    instance_type: mac_mini_m1
-
+  flutter-ios-build:
+    name: Flutter iOS Build & Publish
+    instance_type: mac_mini_m2
+    max_build_duration: 90
     environment:
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: "com.spooding.express"   # ⚡ bundle ID لازم يكون نفس اللي في Apple Developer
-        certificate: "Codemagic Distribution Certificate"  # اسم الشهادة في Codemagic
-        provisioning_profile: "Spooding Express AppStore"   # اسم الـ profile في Codemagic
-      vars:
-        XCODE_WORKSPACE: "ios/Runner.xcworkspace"
-        XCODE_SCHEME: "Runner"
-
+      flutter: stable
+      xcode: latest
     scripts:
-      - name: Install dependencies
-        script: |
-          flutter pub get
-      - name: Build ipa
-        script: |
-          flutter build ipa --release \
-            --export-options-plist=/Users/builder/export_options.plist
-
+      - flutter pub get
+      - flutter test
+      - flutter build ipa --release --export-method app-store
+    artifacts:
+      - build/ios/ipa/*.ipa
     integrations:
-      apple_id:
-        email: "wseize@gmail.com"
-        password: "ssaa-qfwm-yupg-matu"
-
+      app_store_connect: "Express"   # اسم الـ integration اللي ضفتو في Codemagic
     publishing:
       app_store_connect:
-        auth: apple_id
-        submit_to_testflight: true
-        submit_to_app_store: true
+        auth: integration
+        app: com.spooding.express
+        skip_screenshots: true
+        skip_metadata: true
