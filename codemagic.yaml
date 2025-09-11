@@ -9,7 +9,7 @@ workflows:
       vars:
         APPLE_ID: "wseize@gmail.com"                 # Apple ID متاعك
         APP_SPECIFIC_PASSWORD: "ssaa-qfwm-yupg-matu" # App-specific password
-        IOS_TEAM_ID: "9A1BC23D45"                    # Team ID متاعك (من Membership page)
+        IOS_TEAM_ID: "Z263AC4VL7"                    # Team ID متاعك
       ios_signing:
         distribution_type: app_store
         bundle_identifier: "com.spooding.express"
