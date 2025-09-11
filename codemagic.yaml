@@ -1,22 +1,50 @@
 workflows:
-  flutter-ios-build:
-    name: Flutter iOS Build & Publish
-    instance_type: mac_mini_m2
+  ios-spooding-express:
+    name: iOS Build & Publish - Spooding Express
     max_build_duration: 90
+    instance_type: mac_mini_m2
     environment:
       flutter: stable
-      xcode: latest
+      vars:
+        APPLE_ID: "wseize@gmail.com"
+        APP_SPECIFIC_PASSWORD: "ssaa-qfwm-yupg-matu"
+        IOS_TEAM_ID: "wseize@gmail.com"
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: "com.spooding.express"
     scripts:
-      - flutter pub get
-      - flutter test
-      - flutter build ipa --release --export-method app-store
-    artifacts:
-      - build/ios/ipa/*.ipa
-    integrations:
-      app_store_connect: "Express"   # اسم الـ integration اللي ضفتو في Codemagic
-    publishing:
-      app_store_connect:
-        auth: integration
-        app: com.spooding.express
-        skip_screenshots: true
-        skip_metadata: true
+      - name: Install Flutter dependencies
+        script: |
+          flutter pub get
+      - name: Clean previous build
+        script: |
+          flutter clean
+      - name: Build iOS App (Release)
+        script: |
+          flutter build ios --release --no-codesign
+      - name: Archive App
+        script: |
+          xcodebuild -workspace ios/Runner.xcworkspace \
+                     -scheme Runner \
+                     -sdk iphoneos \
+                     -configuration Release \
+                     archive -archivePath build/ios/Runner.xcarchive
+      - name: Export IPA
+        script: |
+          xcodebuild -exportArchive \
+                     -archivePath build/ios/Runner.xcarchive \
+                     -exportOptionsPlist ios/ExportOptions.plist \
+                     -exportPath build/ios/ipa
+      - name: Validate IPA
+        script: |
+          xcrun altool --validate-app \
+            --file build/ios/ipa/Runner.ipa \
+            --username $APPLE_ID \
+            --password $APP_SPECIFIC_PASSWORD
+      - name: Upload IPA to App Store
+        script: |
+          xcrun altool --upload-app \
+            --type ios \
+            --file build/ios/ipa/Runner.ipa \
+            --username $APPLE_ID \
+            --password $APP_SPECIFIC_PASSWORD
