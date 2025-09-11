@@ -3,16 +3,17 @@ workflows:
     name: iOS Build & Publish - Spooding Express
     max_build_duration: 90
     instance_type: mac_mini_m2
+
     environment:
       flutter: stable
       vars:
-        APPLE_ID: "wseize@gmail.com"
-        APP_SPECIFIC_PASSWORD: "ssaa-qfwm-yupg-matu"
-        IOS_TEAM_ID: "wseize@gmail.com"
+        APPLE_ID: "wseize@gmail.com"                 
+        APP_SPECIFIC_PASSWORD: "ssaa-qfwm-yupg-matu" 
+        IOS_TEAM_ID: "9A1BC23D45"                    
       ios_signing:
         distribution_type: app_store
         bundle_identifier: "com.spooding.express"
-        automatic_signing: true
+
     scripts:
       - name: Install Flutter dependencies
         script: |
@@ -23,29 +24,10 @@ workflows:
       - name: Build iOS App (Release)
         script: |
           flutter build ios --release --no-codesign
-      - name: Archive App
-        script: |
-          xcodebuild -workspace ios/Runner.xcworkspace \
-                     -scheme Runner \
-                     -sdk iphoneos \
-                     -configuration Release \
-                     archive -archivePath build/ios/Runner.xcarchive
-      - name: Export IPA
-        script: |
-          xcodebuild -exportArchive \
-                     -archivePath build/ios/Runner.xcarchive \
-                     -exportOptionsPlist ios/ExportOptions.plist \
-                     -exportPath build/ios/ipa
-      - name: Validate IPA
-        script: |
-          xcrun altool --validate-app \
-            --file build/ios/ipa/Runner.ipa \
-            --username $APPLE_ID \
-            --password $APP_SPECIFIC_PASSWORD
-      - name: Upload IPA to App Store
-        script: |
-          xcrun altool --upload-app \
-            --type ios \
-            --file build/ios/ipa/Runner.ipa \
-            --username $APPLE_ID \
-            --password $APP_SPECIFIC_PASSWORD
+
+    publishing:
+      app_store_connect:
+        apple_id: $APPLE_ID
+        password: $APP_SPECIFIC_PASSWORD
+        submit_to_testflight: true
+        submit_to_app_store: true
